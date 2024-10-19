@@ -69,3 +69,34 @@ def get_professors_with_schedules_query():
     GROUP BY 
         p.id, p.nombre, p.horarios_disponibles;
     """
+
+# Consultas para claseDetalles 
+def get_subject_by_name_query():
+    """
+    Retorna la consulta para obtener toda la información de una asignatura por nombre.
+    """
+    return """
+    SELECT *
+    FROM asignatura
+    WHERE nombre = %s
+    """
+
+def get_professor_by_name_query():
+    """
+    Retorna la consulta para obtener toda la información de un profesor por nombre.
+    """
+    return """
+    SELECT *
+    FROM profesor
+    WHERE nombre = %s
+    """
+
+def get_aula_by_name_query():
+    """
+    Retorna la consulta para obtener toda la información de un aula por nombre.
+    """
+    return """
+    SELECT *
+    FROM aulas
+    WHERE nombre = %s
+    """
