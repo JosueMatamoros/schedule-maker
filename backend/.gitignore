@@ -1,0 +1,87 @@
+# Entornos virtuales
+venv/
+ENV/
+env/
+.venv/
+.ENV/
+.env/
+
+# Archivos compilados de Python
+*.py[cod]
+__pycache__/
+*.so
+*.dylib
+*.pyd
+
+# Directorios de configuración
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.eggs/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Archivos de configuración de entorno local
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Logs y bases de datos locales
+*.log
+*.sqlite3
+
+# Archivos generados por herramientas de documentación
+docs/_build/
+
+# Configuración de editores/IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Archivos temporales
+*.bak
+*.tmp
+*.swp
+*.swo
+
+# Archivos de sistema
+.DS_Store # macOS
+Thumbs.db # Windows
+
+# Pipenv y Poetry (si usas estas herramientas)
+Pipfile
+Pipfile.lock
+poetry.lock
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Coverages
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# Profiling data
+.prof

@@ -1,0 +1,68 @@
+# Dependencias de Node.js
+node_modules/
+
+# Archivos de construcción
+dist/
+build/
+
+# Cachés de Vite
+.vite/
+.vitest/
+
+# Cachés de herramientas
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Configuración de npm/yarn/pnpm
+package-lock.json
+yarn.lock
+.pnpm-debug.log
+
+# Cachés de ESLint y Prettier
+.eslintcache
+.prettierignore
+
+# Archivos de configuración de entorno local
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Configuración de editores/IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Archivos temporales
+*.tmp
+*.swp
+*.swo
+
+# Archivos de sistema
+.DS_Store # macOS
+Thumbs.db # Windows
+
+# Configuración de testing
+coverage/
+*.spec.js
+*.spec.jsx
+*.test.js
+*.test.jsx
+*.test.tsx
+
+# Caché de Jest (si usas Jest para pruebas)
+jest/
+
+# Archivos generados por Storybook (si usas Storybook)
+storybook-static/
+
+# Cachés de herramientas de empaquetado y configuración de Webpack (si estás usando)
+.cache/
+webpack/
+.parcel-cache/
+rollup.config.js
