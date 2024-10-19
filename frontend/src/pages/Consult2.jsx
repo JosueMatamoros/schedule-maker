@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import SubjectsCard from '../components/SubjectsCard';
 
-const Consult1 = () => {
+const Consult2 = () => {
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [message, setMessage] = useState('');
-  const [schedules, setSchedules] = useState([]); // Nuevo estado para los horarios
+  const [schedules, setSchedules] = useState([]);
 
   useEffect(() => {
     axios.get('http://localhost:5001/api/obtener_asignaturas')
@@ -26,7 +26,6 @@ const Consult1 = () => {
   }, []);
 
   const handleSelectionChange = (subject, isSelected) => {
-    // Actualizar el estado de las materias
     const updatedSubjects = subjects.map(s =>
       s.nombre === subject.nombre && s.semestre === subject.semestre
         ? { ...s, selected: isSelected }
@@ -34,7 +33,6 @@ const Consult1 = () => {
     );
     setSubjects(updatedSubjects);
 
-    // Actualizar la lista de materias seleccionadas
     const updatedSelected = isSelected
       ? [...selectedSubjects, subject]
       : selectedSubjects.filter(s => s.nombre !== subject.nombre);
@@ -53,12 +51,11 @@ const Consult1 = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5001/api/enviar_datos_prolog', {
-        asignaturas_seleccionadas: selectedSubjects,
-        consulta: '1' // Indica que es la consulta 1
-      });
+        const response = await axios.post('http://localhost:5001/api/enviar_datos_prolog', {
+          asignaturas_seleccionadas: selectedSubjects,
+          consulta: '2' // Indica que es la consulta 2
+        });
 
-      // Imprimir la respuesta del backend en la consola
       console.log('Respuesta del backend:', response.data);
 
       if (response.data.horarios) {
@@ -74,7 +71,7 @@ const Consult1 = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Cargando...</div>;
   }
 
   return (
@@ -139,4 +136,4 @@ const Consult1 = () => {
   );
 };
 
-export default Consult1;
+export default Consult2;
