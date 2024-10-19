@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import SubjectsCard from '../components/SubjectsCard';
 import HorariosConsulta2 from '../components/HorariosConsulta2';
-import { Button, ButtonGroup } from "@material-tailwind/react"; // Importar Button y ButtonGroup
+import { Button, ButtonGroup, Breadcrumbs } from "@material-tailwind/react";
 import { CiCircleCheck } from "react-icons/ci";
+import { Link } from 'react-router-dom';
 
 const Consult2 = () => {
   const [subjects, setSubjects] = useState([]);
@@ -11,7 +12,7 @@ const Consult2 = () => {
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [message, setMessage] = useState('');
   const [schedules, setSchedules] = useState([]);
-  const [filterState, setFilterState] = useState({ par: false, impar: false }); // Estado para manejar la selección de pares e impares
+  const [filterState, setFilterState] = useState({ par: false, impar: false });
   const [showFilters, setShowFilters] = useState(true);
 
   useEffect(() => {
@@ -31,28 +32,27 @@ const Consult2 = () => {
   }, []);
 
   const handleSelectionChange = (subject, isSelected) => {
-    const updatedSubjects = subjects.map(s =>
+    const updatedSubjects = subjects.map((s) => 
       s.nombre === subject.nombre && s.semestre === subject.semestre
         ? { ...s, selected: isSelected }
         : s
     );
     setSubjects(updatedSubjects);
-
+  
     const updatedSelected = isSelected
-      ? [...selectedSubjects, subject]
-      : selectedSubjects.filter(s => s.nombre !== subject.nombre);
-
+      ? [...selectedSubjects, { ...subject, selected: isSelected }]
+      : selectedSubjects.filter((s) => s.nombre !== subject.nombre);
+    
     setSelectedSubjects(updatedSelected);
   };
-
+  
   const getSubjectsBySemester = (semester) => {
     return subjects.filter(subject => subject.semestre === semester);
   };
 
-  // Manejar la selección o limpieza de los semestres pares o impares
   const handleFilterSemesters = (type) => {
     const isPar = type === 'par';
-    const shouldSelect = !filterState[type]; // Si el filtro no está activo, seleccionamos, de lo contrario, deseleccionamos.
+    const shouldSelect = !filterState[type];
 
     const updatedSubjects = subjects.map(subject => {
       if ((isPar && subject.semestre % 2 === 0) || (!isPar && subject.semestre % 2 !== 0)) {
@@ -83,7 +83,7 @@ const Consult2 = () => {
       if (response.data.horarios) {
         setSchedules(response.data.horarios);
         setMessage('Horarios generados correctamente.');
-        setShowFilters(false); // Ocultar los botones de filtro cuando se generen los horarios
+        setShowFilters(false); 
       } else {
         setMessage(response.data.error || 'Error al generar horarios.');
       }
@@ -93,13 +93,17 @@ const Consult2 = () => {
     }
   };
 
+  const volverASeleccionarMaterias = () => {
+    setSchedules([]); // Volver a la vista de selección de materias
+    setMessage('');
+  };
+
   if (loading) {
     return <div className="flex justify-center items-center h-screen">Cargando...</div>;
   }
 
   return (
     <div className="flex">
-      {/* Sidebar de materias seleccionadas */}
       <aside className="w-64 h-screen bg-gray-50 p-4 fixed left-0 top-0 overflow-y-auto">
         <h3 className="text-lg font-bold mb-4">Materias seleccionadas:</h3>
         <ul>
@@ -110,17 +114,16 @@ const Consult2 = () => {
             </li>
           ))}
         </ul>
-        {/* Botón para enviar datos a Prolog */}
-        <button
+        <Button
           onClick={enviarDatosAProlog}
-          className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
-        >
-          Generar Horarios
-        </button>
+          size='lg'
+          color="teal"
+          className="mt-4 text-white font-bold py-2 px-4 rounded w-full p-2.5">
+            Generar Horarios
+        </Button>
 
         {showFilters && (
           <div className="mt-4">
-            {/* ButtonGroup para seleccionar pares o impares */}
             <ButtonGroup variant="gradient" fullWidth>
               <Button onClick={() => handleFilterSemesters('par')}>
                 {filterState.par ? 'Limpiar Pares' : 'Pares'}
@@ -139,14 +142,42 @@ const Consult2 = () => {
           </div>
         )}
       </aside>
+      
+      <div className="relative ml-64 p-4 w-full pt-12">
+        <div className="absolute top-0 left-0 p-2 ml-2">
+          <Breadcrumbs separator="/" className="flex items-center">
+            {/* Primer enlace a Home, con icono */}
+            <Link to="/" className="opacity-60 flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 mr-1"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+              </svg>
+              Home
+            </Link>
 
-      {/* Contenedor principal */}
-      <div className="ml-64 p-4 w-full">
-        {/* Mostrar los horarios generados */}
+            {/* Consulta 2 siempre en teal, pero no es un enlace si hay horarios */}
+            {schedules.length === 0 ? (
+              <Link to="/consult2" className="text-teal-300">
+                Consulta 2
+              </Link>
+            ) : (
+              <span 
+                onClick={volverASeleccionarMaterias} 
+                className="cursor-pointer text-teal-300"
+              >
+                Consulta 2
+              </span>
+            )}
+          </Breadcrumbs>
+        </div>
+
         {schedules.length > 0 ? (
           <HorariosConsulta2 schedules={schedules} />
         ) : (
-          // Mostrar las materias si no hay horarios generados
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(7).keys()].map(semestre => (
               <SubjectsCard
