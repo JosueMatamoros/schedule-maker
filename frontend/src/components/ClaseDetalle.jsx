@@ -26,6 +26,9 @@ const ClaseDetalle = ({ clase, onClose }) => {
   const [aulaOpen, setAulaOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Determinar el nombre de la asignatura
+  const nombreAsignatura = clase.nombre || clase.asignatura || 'Nombre de la Clase';
+
   // Función para obtener datos del profesor
   const fetchProfesorData = async () => {
     try {
@@ -64,7 +67,7 @@ const ClaseDetalle = ({ clase, onClose }) => {
   const fetchAsignaturaData = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5001/api/asignatura/${encodeURIComponent(clase.nombre)}`
+        `http://localhost:5001/api/asignatura/${encodeURIComponent(nombreAsignatura)}`
       );
       if (response.ok) {
         const data = await response.json();
@@ -95,34 +98,34 @@ const ClaseDetalle = ({ clase, onClose }) => {
     );
   }
 
+  // Construir 'horaClase' si no está definida
+  const horaClase = clase.hora || `${clase.inicio} - ${clase.fin}`;
+
   return (
     <Dialog open={true} handler={onClose} size="lg">
       <DialogBody>
         <Typography variant="h5" className="mb-4">
-          {clase.nombre || 'Nombre de la Clase'}
+          {nombreAsignatura}
         </Typography>
-
-        
 
         {/* Mostrar información adicional de la asignatura */}
         <div className="mb-4 px-2">
-        <div className="flex items-center mb-2">
-          <FaClock className="h-5 w-5 mr-2" />
-          <Typography>{clase.hora || 'Hora no disponible'}</Typography>
-        </div>
+          <div className="flex items-center mb-2">
+            <FaClock className="h-5 w-5 mr-2" />
+            <Typography>{horaClase || 'Hora no disponible'}</Typography>
+          </div>
           {asignaturaData ? (
-           <>
-           <Typography className="flex gap-2">
-             <span className="font-bold">Créditos:</span> {asignaturaData.numero_creditos}
-           </Typography>
-           <Typography className="flex gap-2">
-             <span className="font-bold">Semestre:</span> {asignaturaData.semestre}
-           </Typography>
-           <Typography className="flex gap-2">
-             <span className="font-bold">Tipo de Aula:</span> {asignaturaData.tipo_aula}
-           </Typography>
-         </>
-         
+            <>
+              <Typography className="flex gap-2">
+                <span className="font-bold">Créditos:</span> {asignaturaData.numero_creditos}
+              </Typography>
+              <Typography className="flex gap-2">
+                <span className="font-bold">Semestre:</span> {asignaturaData.semestre}
+              </Typography>
+              <Typography className="flex gap-2">
+                <span className="font-bold">Tipo de Aula:</span> {asignaturaData.tipo_aula}
+              </Typography>
+            </>
           ) : (
             <div className="flex justify-center">
               <Spinner />
