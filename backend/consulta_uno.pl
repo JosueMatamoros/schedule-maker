@@ -25,19 +25,16 @@ hora('15:15').
 hora('16:10').
 
 % Reglas básicas
-inicio :-
-    generar_3_horarios(3).
+inicio(Horarios) :-
+    generar_3_horarios(3, Horarios).
 
 % Generar N horarios distintos
-generar_3_horarios(0).
-generar_3_horarios(N) :-
+generar_3_horarios(0, []).
+generar_3_horarios(N, [Horario | RestoHorarios]) :-
     N > 0,
     generar_horario(Horario),
-    format('--- Horario ~w ---~n', [N]),
-    imprimir_horario(Horario),
-    nl,
     N1 is N - 1,
-    generar_3_horarios(N1).
+    generar_3_horarios(N1, RestoHorarios).
 
 % Generar un solo horario
 generar_horario(Horario) :-
@@ -83,6 +80,13 @@ generar_horario_aux([asignatura(Nombre, Tipo_aula) | Rest], HorarioAcc, HorarioF
 
 % Asignar un bloque de lecciones
 asignar_bloque(Duracion, Dia, HoraInicio, HoraFin, HorarioAcc) :-
+    asignar_bloque(Duracion, Dia, HoraInicio, HoraFin, HorarioAcc, 0).
+
+asignar_bloque(_, _, _, _, _, Intentos) :-
+    Intentos >= 100, % Limitar a 100 intentos
+    !, fail.
+
+asignar_bloque(Duracion, Dia, HoraInicio, HoraFin, HorarioAcc, Intentos) :-
     % Seleccionar un día aleatoriamente que no tenga conflicto para este bloque
     findall(D, dia(D), Dias),
     random_member(Dia, Dias),
@@ -92,7 +96,12 @@ asignar_bloque(Duracion, Dia, HoraInicio, HoraFin, HorarioAcc) :-
     % Calcular la hora de fin basada en la duración
     calcular_hora_fin(HoraInicio, Duracion, HoraFin),
     % Asegurarse de que no hay conflictos en el horario
-    \+ hay_conflicto(Dia, HoraInicio, HoraFin, HorarioAcc).
+    (\+ hay_conflicto(Dia, HoraInicio, HoraFin, HorarioAcc) ->
+        true
+    ;
+        Intentos1 is Intentos + 1,
+        asignar_bloque(Duracion, Dia, HoraInicio, HoraFin, HorarioAcc, Intentos1)
+    ).
 
 % Calcular hora de fin basado en hora de inicio y duración
 calcular_hora_fin(HoraInicio, Duracion, HoraFin) :-
@@ -135,8 +144,3 @@ hay_conflicto(Dia, HoraInicio, HoraFin, HorarioAcc) :-
     (MinInicioNuevo < MinFinExistente,
      MinFinNuevo > MinInicioExistente).
 
-% Imprimir el horario
-imprimir_horario([]).
-imprimir_horario([horario(Nombre, Profesor, Aula, Dia, Inicio, Fin) | Rest]) :-
-    format('~w - Profesor: ~w - Aula: ~w - Día: ~w - ~w a ~w~n', [Nombre, Profesor, Aula, Dia, Inicio, Fin]),
-    imprimir_horario(Rest).
