@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import SubjectsCard from '../components/SubjectsCard';
+import HorariosConsulta2 from '../components/HorariosConsulta2';
+import { Button, ButtonGroup } from "@material-tailwind/react"; // Importar Button y ButtonGroup
+import { CiCircleCheck } from "react-icons/ci";
 
 const Consult2 = () => {
   const [subjects, setSubjects] = useState([]);
@@ -8,6 +11,8 @@ const Consult2 = () => {
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [message, setMessage] = useState('');
   const [schedules, setSchedules] = useState([]);
+  const [filterState, setFilterState] = useState({ par: false, impar: false }); // Estado para manejar la selección de pares e impares
+  const [showFilters, setShowFilters] = useState(true);
 
   useEffect(() => {
     axios.get('http://localhost:5001/api/obtener_asignaturas')
@@ -44,6 +49,23 @@ const Consult2 = () => {
     return subjects.filter(subject => subject.semestre === semester);
   };
 
+  // Manejar la selección o limpieza de los semestres pares o impares
+  const handleFilterSemesters = (type) => {
+    const isPar = type === 'par';
+    const shouldSelect = !filterState[type]; // Si el filtro no está activo, seleccionamos, de lo contrario, deseleccionamos.
+
+    const updatedSubjects = subjects.map(subject => {
+      if ((isPar && subject.semestre % 2 === 0) || (!isPar && subject.semestre % 2 !== 0)) {
+        return { ...subject, selected: shouldSelect };
+      }
+      return subject;
+    });
+
+    setSubjects(updatedSubjects);
+    setSelectedSubjects(updatedSubjects.filter(subject => subject.selected));
+    setFilterState({ ...filterState, [type]: shouldSelect });
+  };
+
   const enviarDatosAProlog = async () => {
     if (selectedSubjects.length === 0) {
       setMessage('No hay asignaturas seleccionadas para enviar.');
@@ -51,16 +73,17 @@ const Consult2 = () => {
     }
 
     try {
-        const response = await axios.post('http://localhost:5001/api/enviar_datos_prolog', {
-          asignaturas_seleccionadas: selectedSubjects,
-          consulta: '2' // Indica que es la consulta 2
-        });
+      const response = await axios.post('http://localhost:5001/api/enviar_datos_prolog', {
+        asignaturas_seleccionadas: selectedSubjects,
+        consulta: '2'
+      });
 
       console.log('Respuesta del backend:', response.data);
 
       if (response.data.horarios) {
         setSchedules(response.data.horarios);
         setMessage('Horarios generados correctamente.');
+        setShowFilters(false); // Ocultar los botones de filtro cuando se generen los horarios
       } else {
         setMessage(response.data.error || 'Error al generar horarios.');
       }
@@ -71,17 +94,17 @@ const Consult2 = () => {
   };
 
   if (loading) {
-    return <div>Cargando...</div>;
+    return <div className="flex justify-center items-center h-screen">Cargando...</div>;
   }
 
   return (
     <div className="flex">
       {/* Sidebar de materias seleccionadas */}
-      <aside className="w-64 h-screen bg-gray-50 p-4 fixed left-0 top-0">
+      <aside className="w-64 h-screen bg-gray-50 p-4 fixed left-0 top-0 overflow-y-auto">
         <h3 className="text-lg font-bold mb-4">Materias seleccionadas:</h3>
         <ul>
           {selectedSubjects.map((subject, index) => (
-            <li key={index} className="mb-2">
+            <li key={`subject-${subject.id || `subject-${index}`}`} className="mb-2">
               {subject.nombre}
               <span className="text-sm text-gray-600"> ({subject.tipo_aula})</span>
             </li>
@@ -90,40 +113,44 @@ const Consult2 = () => {
         {/* Botón para enviar datos a Prolog */}
         <button
           onClick={enviarDatosAProlog}
-          className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
         >
           Generar Horarios
         </button>
-        {message && <p className="mt-2 text-green-600">{message}</p>}
+
+        {showFilters && (
+          <div className="mt-4">
+            {/* ButtonGroup para seleccionar pares o impares */}
+            <ButtonGroup variant="gradient" fullWidth>
+              <Button onClick={() => handleFilterSemesters('par')}>
+                {filterState.par ? 'Limpiar Pares' : 'Pares'}
+              </Button>
+              <Button onClick={() => handleFilterSemesters('impar')}>
+                {filterState.impar ? 'Limpiar Impares' : 'Impares'}
+              </Button>
+            </ButtonGroup>
+          </div>
+        )}
+
+        {message && (
+          <div className="flex items-center mt-2 text-green-600">
+            <CiCircleCheck className="text-4xl mr-2" />
+            <p>{message}</p>
+          </div>
+        )}
       </aside>
 
       {/* Contenedor principal */}
-      <div className="ml-64 p-4">
+      <div className="ml-64 p-4 w-full">
         {/* Mostrar los horarios generados */}
         {schedules.length > 0 ? (
-          <div>
-            <h2 className="text-xl font-bold mb-4">Horarios Generados:</h2>
-            {schedules.map((horario, index) => (
-              <div key={index} className="mb-8">
-                <h3 className="text-lg font-bold mb-2">Horario {index + 1}</h3>
-                {horario.map((asignacion, idx) => (
-                  <div key={idx} className="mb-4 p-4 border border-gray-300 rounded">
-                    <p><strong>Asignatura:</strong> {asignacion.asignatura}</p>
-                    <p><strong>Profesor:</strong> {asignacion.profesor}</p>
-                    <p><strong>Aula:</strong> {asignacion.aula}</p>
-                    <p><strong>Día:</strong> {asignacion.dia}</p>
-                    <p><strong>Horario:</strong> {asignacion.inicio} - {asignacion.fin}</p>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
+          <HorariosConsulta2 schedules={schedules} />
         ) : (
           // Mostrar las materias si no hay horarios generados
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(7).keys()].map(semestre => (
               <SubjectsCard
-                key={semestre}
+                key={`semestre-${semestre}`}
                 semester={semestre + 1}
                 subjects={getSubjectsBySemester(semestre + 1)}
                 handleSelectionChange={handleSelectionChange}
