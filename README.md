@@ -5,7 +5,7 @@
 ### Clonar el repositorio
 
 ```shell
-git clone [URL_DEL_REPOSITORIO]
+git clone https://github.com/JosueMatamoros/schedule-maker.git
 ```
 
 ## Navegar al directorio del proyecto
