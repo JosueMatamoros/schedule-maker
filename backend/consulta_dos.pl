@@ -42,7 +42,7 @@ generar_horarios(0, HorariosAcc, Horarios) :-
     reverse(HorariosAcc, Horarios).
 generar_horarios(N, HorariosAcc, HorariosFinal) :-
     N > 0,
-    MaxIntentos = 40, % Puedes ajustar este valor si es necesario
+    MaxIntentos = 40, % Cantida de intentos máxima para generar un horario
     generar_horario_con_intentos(Horario, MaxIntentos),
     (Horario \= [] ->
         N1 is N - 1,
